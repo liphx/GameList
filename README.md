@@ -1,1 +1,2 @@
 - [steam](docs/steam.md)
+- [epic](docs/epic.md)

@@ -1,9 +1,5 @@
 from common import *
-import time
 import sys
-from bs4 import BeautifulSoup
-import json
-
 
 # https://steamcommunity.com/dev
 class SteamAPI:
@@ -42,10 +38,6 @@ class SteamAPI:
         return r.json()
 
 
-def jprint(data):
-    print(json.dumps(data, ensure_ascii=False, indent=4))
-
-
 def main(key, steamid):
     api = SteamAPI(key, steamid)
     # jprint(api.GetPlayerSummaries())
@@ -61,7 +53,7 @@ def main(key, steamid):
         item = {}
         item['appid'] = game['appid']
         item['name'] = Achievements['gameName']
-        if game['rtime_last_played'] != 0:
+        if 'rtime_last_played' in game and game['rtime_last_played'] != 0:
             item['last_time'] = format_time(game['rtime_last_played'])
         item['total_time'] = game['playtime_forever']
         output.append(item)

@@ -1,13 +1,16 @@
 __all__ = [
     'eprint',
+    'jprint',
     'lines',
     'fetch_url',
     'format_time',
+    'headers',
 ]
 
 import sys
 import time
 import requests
+import json
 from datetime import datetime
 
 headers = {
@@ -16,6 +19,10 @@ headers = {
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
+
+
+def jprint(data):
+    print(json.dumps(data, ensure_ascii=False, indent=4))
 
 
 def lines(path):

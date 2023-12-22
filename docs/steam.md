@@ -1,7 +1,7 @@
 # Steam
 
 ```shell
-python3 src/steam.py key steamid > steam.json
+$ python3 src/steam.py key steamid > steam.json
 ```
 
 - key：[注册 Steam Web API 密钥](https://steamcommunity.com/dev/apikey)。
