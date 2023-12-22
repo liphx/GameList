@@ -1,7 +1,7 @@
 from common import *
 import sys
 
-# https://steamcommunity.com/dev
+
 class SteamAPI:
     def __init__(self, key, steamid):
         self.key = key
