@@ -4,6 +4,7 @@ __all__ = [
     'lines',
     'fetch_url',
     'format_time',
+    'format_datetime',
     'headers',
 ]
 
@@ -44,3 +45,6 @@ def fetch_url(url, headers=headers, try_times=5, sleep_interval=1):
 
 def format_time(timestamp):
     return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+
+def format_datetime(time):
+    return time.strftime('%Y-%m-%d %H:%M:%S')
