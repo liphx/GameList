@@ -2,7 +2,8 @@ from common import *
 import sys
 
 headers['Cookie'] = sys.argv[1]
-output = set()
+refund = set()
+purchase = set()
 
 
 def fetch(url, zh):
@@ -14,13 +15,12 @@ def fetch(url, zh):
     data = r.json()
     for order in data['orders']:
         for item in order['items']:
-            description = item['description']
-            if description[0] == '《' and description[-1] == '》':
-                description = description[1:-1]
-            if order['orderType'] == 'PURCHASE':
-                output.add(description)
-            elif order['orderType'] == 'REFUND' and description in output:
-                output.remove(description)
+            description = ' '.join(item['description'].replace(
+                '《', ' ').replace('》', ' ').split())
+            if order['orderType'] == 'REFUND':
+                refund.add(description)
+            elif order['orderType'] == 'PURCHASE' and description not in refund:
+                purchase.add(description)
     nextPageToken = data['nextPageToken']
     if not nextPageToken:
         return
@@ -29,5 +29,6 @@ def fetch(url, zh):
 
 
 url = 'https://www.epicgames.com/account/v2/payment/ajaxGetOrderHistory?sortDir=DESC&sortBy=DATE'
-fetch(url, False)
-jprint(list(output))
+# fetch(url, False)
+fetch(url, True)
+jprint(sorted(list(purchase)))
