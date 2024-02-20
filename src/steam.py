@@ -47,11 +47,12 @@ def main(key, steamid):
     output = []
     games = api.GetOwnedGames()['response']
     for game in games['games']:
-        Achievements = api.GetPlayerAchievements(game['appid'])['playerstats']
-        if ('error' in Achievements):
-            continue
         item = {}
         item['appid'] = game['appid']
+        Achievements = api.GetPlayerAchievements(game['appid'])['playerstats']
+        if ('error' in Achievements):
+            output.append(item)
+            continue
         item['name'] = Achievements['gameName']
         if 'rtime_last_played' in game and game['rtime_last_played'] != 0:
             item['last_time'] = format_time(game['rtime_last_played'])

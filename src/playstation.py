@@ -19,16 +19,21 @@ def fetch(fetch_all=True, only_perfect=False, only_platinum=False):
     summary['platinum'] = trophy_summary.earned_trophies.platinum
     summary['perfect'] = 0
     trophies = []
+    perfect = []
+    platinum = []
     for trophy_title in client.trophy_titles():
         summary['game'] += 1
         trophy = {}
-        trophy['name'] = trophy_title.title_name
+        trophy['name'] = trophy_title.title_name.strip()
         trophy['platform'] = ','.join(
             sorted([i.name for i in trophy_title.title_platform]))
         is_perfect = trophy_title.progress == 100
         if is_perfect:
             summary['perfect'] += 1
-        is_platinum = trophy_title.defined_trophies.platinum > 0
+            perfect.append(f'{trophy["name"]} ({trophy["platform"]})')
+        is_platinum = trophy_title.earned_trophies.platinum > 0
+        if is_platinum:
+            platinum.append(f'{trophy["name"]} ({trophy["platform"]})')
         trophy['progress'] = trophy_title.progress
         if trophy_title.defined_trophies.bronze > 0:
             trophy['bronze'] = f'{trophy_title.earned_trophies.bronze}/{trophy_title.defined_trophies.bronze}'
@@ -49,6 +54,8 @@ def fetch(fetch_all=True, only_perfect=False, only_platinum=False):
     output = {}
     output['summary'] = summary
     output['trophy'] = trophies
+    output['platinum'] = platinum
+    output['perfect'] = perfect
     jprint(output)
 
 
