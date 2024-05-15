@@ -1,6 +1,7 @@
 from common import *
 import requests
 import sys
+import time
 
 
 # https://developer.valvesoftware.com/wiki/Steam_Web_API
@@ -28,32 +29,44 @@ class SteamAPI:
     def GetOwnedGames(self, steamid=None):
         if steamid is None:
             steamid = self.steamid
-        url = f'http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={self.key}&steamid={steamid}&format=json&skip_unvetted_apps=0&include_appinfo=1&include_played_free_games=1&include_free_sub=0'
+        url = f'http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={self.key}&steamid={
+            steamid}&format=json&skip_unvetted_apps=0&include_appinfo=1&include_played_free_games=1&include_free_sub=0'
         r = self.fetch(url)
         return r.json()
 
-    def GetPlayerAchievements(self, appid):
-        url = f'http://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/?appid={appid}&key={self.key}&steamid={self.steamid}'
+    def GetGlobalAchievementPercentagesForApp(self, appid):
+        url = f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={
+            appid}'
+        r = self.fetch(url)
+        return r.json()
+
+    def GetPlayerAchievements(self, appid, language='english'):
+        url = f'http://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/?appid={
+            appid}&key={self.key}&steamid={self.steamid}&l={language}'
         r = self.fetch(url)
         return r.json()
 
     def GetPlayerSummaries(self):
-        url = f'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={self.key}&steamids={self.steamid}'
+        url = f'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={
+            self.key}&steamids={self.steamid}'
         r = self.fetch(url)
         return r.json()
 
     def GetFriendList(self):
-        url = f'http://api.steampowered.com/ISteamUser/GetFriendList/v0001/?key={self.key}&steamid={self.steamid}&relationship=friend'
+        url = f'http://api.steampowered.com/ISteamUser/GetFriendList/v0001/?key={
+            self.key}&steamid={self.steamid}&relationship=friend'
         r = self.fetch(url)
         return r.json()
 
     def GetUserStatsForGame(self, appid):
-        url = f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={appid}&key={self.key}&steamid={self.steamid}'
+        url = f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={
+            appid}&key={self.key}&steamid={self.steamid}'
         r = self.fetch(url)
         return r.json()
 
     def GetRecentlyPlayedGames(self):
-        url = f'http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key={self.key}&steamid={self.steamid}&format=json'
+        url = f'http://api.steampowered.com/IPlayerService/GetRecentlyPlayedGames/v0001/?key={
+            self.key}&steamid={self.steamid}&format=json'
         r = self.fetch(url)
         return r.json()
 
@@ -62,12 +75,45 @@ class SteamAPI:
         return self.fetch(url).json()
 
 
+def GetAppAchievement(key, steamid, appid):
+    api = SteamAPI(key, steamid)
+    achievements = api.GetPlayerAchievements(appid)
+    achievements_schinese = api.GetPlayerAchievements(appid, 'schinese')
+    achievements_global_percentages = api.GetGlobalAchievementPercentagesForApp(
+        appid)
+    gamename = achievements['playerstats']['gameName']
+    # jprint(achievements)
+    # jprint(achievements_schinese)
+    # jprint(achievements_global_percentages)
+
+    output = {}
+
+    all_games = api.GetOwnedGames()
+    output['all_games'] = all_games
+
+    details = api.GetAppDetails(appid)
+    output['details'] = details
+
+    output['achievements'] = []
+    for i, achievement in enumerate(achievements['playerstats']['achievements']):
+        achievement_chinese = achievements_schinese['playerstats']['achievements'][i]
+        achievement_global_percentages = achievements_global_percentages[
+            'achievementpercentages']['achievements'][i]
+        item = {}
+        item['name'] = achievement['name']
+        item['description'] = achievement['description']
+        item['chinese_name'] = achievement_chinese['name']
+        item['chinese_description'] = achievement_chinese['description']
+        item['achieved'] = achievement['achieved']
+        if item['achieved'] == 1:
+            item['unlocktime'] = format_time(achievement['unlocktime'])
+        item['global_percentage'] = achievement_global_percentages['percent']
+        output['achievements'].append(item)
+    jprint(output)
+
+
 def main(key, steamid):
     api = SteamAPI(key, steamid)
-    # jprint(api.GetPlayerSummaries())
-    # jprint(api.GetFriendList())
-    # jprint(api.GetRecentlyPlayedGames())
-
     output = []
     games = api.GetOwnedGames()['response']
     for game in games['games']:
