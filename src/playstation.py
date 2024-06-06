@@ -47,8 +47,8 @@ def fetch(fetch_all=True, only_perfect=False, only_platinum=False):
             trophy_title.last_updated_date_time.astimezone())
         if fetch_all or (only_perfect and is_perfect) or (only_platinum and is_platinum):
             trophies.append(trophy)
-    trophies.sort(reverse=True, key=lambda trophy: (
-        trophy['progress'], trophy['update_time']))
+    # trophies.sort(reverse=True, key=lambda trophy: (trophy['progress'], trophy['update_time']))
+    trophies.sort(reverse=True, key=lambda trophy: (trophy['update_time']))
     for trophy in trophies:
         trophy['progress'] = f"{trophy['progress']}%"
     output = {}
